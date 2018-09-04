@@ -1,3 +1,5 @@
+package org.jonnyzzz.xcode
+
 
 interface XWriter {
   fun appendLine()
@@ -16,7 +18,7 @@ interface XWriter {
     val that = this
     return object : XWriter {
       override fun appendLine() = that.appendLine()
-      override fun appendLine(x: String) = that.appendLine("    " + x)
+      override fun appendLine(x: String) = that.appendLine("    $x")
     }
   }
 
@@ -26,44 +28,4 @@ interface XWriter {
     + "}$suffix"
   }
 }
-
-
-fun StringBuilder.xWriter(f: XWriter.() -> Unit) {
-  val sb = this
-  object : XWriter {
-    override fun appendLine() {
-      sb.appendln()
-    }
-
-    override fun appendLine(x: String) {
-      sb.appendln(x)
-    }
-  }.f()
-}
-
-val code = buildString {
-  xWriter {
-    +"// !$*UTF8*$!"
-    block {
-      "archiveVersion" to 1
-      "classes" to { }
-      "objectVersion" to 48
-
-      val rootObjectId = "2CED25D21F75246200A6326D"
-      "objects" to {
-
-        rootObjectId to {
-
-        }
-      }
-
-      "rootObject" to rootObjectId
-    }
-  }
-}
-
-println(code)
-
-
-
 
