@@ -6,31 +6,55 @@ data class XPbxRef(
         val body: XPbxWriter.() -> Unit
 )
 
-interface XPbxWriter {
+interface XPbxHost {
 
 }
 
+private fun XWriter.extend() = object : XPbxWriter, XWriter by this { }
 
-fun XWriter.xPbx(f: XPbxWriter.() -> XPbxRef) {
+private fun commentOrEmpty(comment: String?, prefix : String = " ") = when(comment) {
+  null -> ""
+  else -> "$prefix/* $comment */"
+}
 
-  val rootRef = object:XPbxWriter {}.f()
+interface XPbxWriter : XWriter {
+  infix fun String.to(x: Any) = this.to(null, x)
+  fun String.to(comment: String?, x: Any) = appendLine("$this = $x${commentOrEmpty(comment)};")
 
-  +"// !$*UTF8*$!"
-  block {
-    "archiveVersion" to 1
-    "classes" to { }
-    "objectVersion" to 50
+  infix fun String.to(x: XPbxWriter.() -> Unit) = this.to(null, x)
+  fun String.to(comment: String? = null, x: XPbxWriter.() -> Unit) = block(prefix = "$this =${commentOrEmpty(comment)} ", suffix = ";", x = x)
 
-    val rootObjectId = "2CED25D21F75246200A6326D"
-    "objects" to {
+  fun indent() : XPbxWriter = (this as XWriter).indent().extend()
 
-      rootRef.id to {
-        //TODO: implement body
-        rootRef.body
-      }
-    }
-
-    "rootObject".to(x = rootRef.id, comment = rootRef.comment)
+  fun block(prefix: String = "", suffix : String = "", x : XPbxWriter.() -> Unit) {
+    + "$prefix{"
+    indent().apply(x)
+    + "}$suffix"
   }
+
+  fun comment(x: String) = appendLine(commentOrEmpty(prefix = "", comment = x))
+}
+
+fun XWriter.xPbx(f: XPbxHost.() -> XPbxRef) {
+  val rootRef = object : XPbxHost {}.f()
+
+  object : XPbxWriter, XWriter by this {}
+          .apply {
+            +"// !$*UTF8*$!"
+            block {
+              "archiveVersion" to 1
+              "classes" to { }
+              "objectVersion" to 50
+
+              "objects" to {
+                rootRef.id to {
+                  //TODO: implement body
+                  rootRef.body
+                }
+              }
+
+              "rootObject".to(x = rootRef.id, comment = rootRef.comment)
+            }
+          }
 }
 

@@ -7,14 +7,6 @@ interface XWriter {
 
   operator fun String.unaryPlus() = appendLine(this)
   operator fun String.unaryMinus() = appendLine(this)
-
-  infix fun String.to(x: Int) = appendLine("$this = $x;")
-  infix fun String.to(x: String) = appendLine("$this = $x;")
-
-  fun String.to(comment: String?, x: String) = if (comment != null) appendLine("$this = $x /* $comment */;") else this to x
-
-  infix fun String.to(x: XWriter.() -> Unit) = block(prefix = "$this = ", suffix = ";", x = x)
-  fun String.to(comment: String, x: XWriter.() -> Unit) = block(prefix = "$this = /* $comment */ ", suffix = ";", x = x)
 }
 
 fun XWriter.indent() : XWriter {
@@ -24,13 +16,3 @@ fun XWriter.indent() : XWriter {
     override fun appendLine(x: String) = that.appendLine("    $x")
   }
 }
-
-fun XWriter.block(prefix: String = "", suffix : String = "", x : XWriter.() -> Unit) {
-  + "$prefix{"
-  indent().apply(x)
-  + "}$suffix"
-}
-
-fun XWriter.comment(x: String) = appendLine("/* $x */")
-
-
