@@ -8,12 +8,12 @@ class XTest {
   fun test() {
     val code = buildString {
       xWriter {
-        xPbx()
+        xPbx {
+          XPbxRef(id = "2CED25D21F75246200A6326D", comment = "aaaa") {}
+        }
       }
     }
-
     println(code)
   }
-
 }
 

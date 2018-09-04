@@ -10,6 +10,9 @@ interface XWriter {
 
   infix fun String.to(x: Int) = appendLine("$this = $x;")
   infix fun String.to(x: String) = appendLine("$this = $x;")
+
+  fun String.to(comment: String?, x: String) = if (comment != null) appendLine("$this = $x /* $comment */;") else this to x
+
   infix fun String.to(x: XWriter.() -> Unit) = block(prefix = "$this = ", suffix = ";", x = x)
   fun String.to(comment: String, x: XWriter.() -> Unit) = block(prefix = "$this = /* $comment */ ", suffix = ";", x = x)
 }
